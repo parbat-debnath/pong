@@ -5,6 +5,9 @@ const winWidth = window.innerWidth;
 canvas.width = winWidth;
 canvas.height = 2 * winWidth;
 
+let opponentScore = 0;
+let playerScore = 0;
+
 const bar = {
     height : 20,
     width : 100,
@@ -48,6 +51,7 @@ function gameLoop(currentTime)
     
     updateBall(ball.x, ball.y);
     drawBar();
+    printScore(playerScore, opponentScore);
 
     requestAnimationFrame(gameLoop);
 }
@@ -102,13 +106,23 @@ function handleCollision()
     {
         velY = -Math.abs(velY);
         velX = maxVelX * (ball.x - (bar.x + bar.width / 2)) / bar.width;
-        console.log(velX);
     }
     if(ball.y - ball.radius >= canvas.height) // canvas end
     {
         ball.x = canvas.width / 2;
         ball.y = canvas.height / 4;
+        opponentScore++;
     }
+}
+
+function printScore(pScore, oScore)
+{
+    ctx.fillStyle = "#ffffff"
+    ctx.textAlign = "center"
+    ctx.font = "14px 'Bebas Neue'";
+    ctx.fillText('You                    Player', canvas.width / 2, 100);
+    ctx.font = "bold 34px 'Pixelify Sans'";
+    ctx.fillText(`${pScore}     ${oScore}`, canvas.width / 2, 150);
 }
 
 requestAnimationFrame(gameLoop);
