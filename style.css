@@ -1,0 +1,10 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+#playground {
+    border: 1px solid black;
+    background-color: gray;
+    touch-action: none;
+}
