@@ -8,7 +8,7 @@ canvas.height = 2 * winWidth;
 const bar = {
     height : 20,
     width : 100,
-    x : canvas.width,
+    x : canvas.width / 2,
     y : canvas.height * 0.7
 }
 const ball = {
@@ -17,8 +17,8 @@ const ball = {
     y : canvas.height / 2
 }
 let maxVelX = 700;
-let velX = 300; // pps
-let velY = 500;
+let velX = 500; // pps
+let velY = maxVelX;
 
 let lastTime = performance.now();
 
@@ -28,9 +28,10 @@ ctx.textAlign = 'center';
 
 
 canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
     const x = getPosition(e).x;
     bar.x = x - bar.width / 2;
-});
+}, {passive: false});
 
 function gameLoop(currentTime)
 {
@@ -53,8 +54,9 @@ function gameLoop(currentTime)
 
 function getPosition(e)
 {
-    const posX = e.touches[0].clientX;
-    const posY = e.touches[0].clientY;
+    const rect = canvas.getBoundingClientRect()
+    const posX = e.touches[0].clientX - rect.left;
+    const posY = e.touches[0].clientY - rect.top;
     
     return {x : posX, y : posY};
 }
@@ -76,7 +78,7 @@ function drawBar()
 
 function updateBall (x, y)
 {
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#c81111";
     ctx.beginPath()
     ctx.arc(x, y, ball.radius, 0, Math.PI * 2);
     ctx.fill()
@@ -84,35 +86,28 @@ function updateBall (x, y)
 
 function handleCollision()
 {
-    if((ball.x - ball.radius) < 0 && (ball.y - ball.radius) < bar.y) // left wall
+    if((ball.x - ball.radius) <= 0) // left wall
     {
-        velX = -velX;
+        velX = Math.abs(velX);
     }
-    if((ball.x + ball.radius) > canvas.width && (ball.y - ball.radius) < bar.y) // right wall
+    if((ball.x + ball.radius) >= canvas.width) // right wall
     {
-        velX = -velX;
+        velX = -Math.abs(velX);
     }
-    if((ball.y - ball.radius) < 0) // top wall
+    if((ball.y - ball.radius) <= 0) // top wall
     {
-        velY = -velY;
+        velY = Math.abs(velY);
     }
     if((ball.y + ball.radius >= bar.y) && (ball.x <= bar.x + bar.width && ball.x >= bar.x) && (ball.y - ball.radius) < bar.y) // top of bar
     {
-        velY = -velY;
+        velY = -Math.abs(velY);
         velX = maxVelX * (ball.x - (bar.x + bar.width / 2)) / bar.width;
         console.log(velX);
     }
-    if(ball.y <= bar.y + bar.height && ball.y >= bar.y) // right side of bar
+    if(ball.y - ball.radius >= canvas.height) // canvas end
     {
-        velX = -velX;
-    }
-    if((ball.y <= bar.y + bar.height && ball.y >= bar.y) && (ball.x - ball.radius) | 0 === (bar.x + bar.width) | 0) // right side of bar
-    {
-        velX = -velX;
-    }
-    if((ball.y <= bar.y + bar.height && ball.y >= bar.y) && (ball.x + ball.radius) | 0 === bar.x | 0) // right side of bar
-    {
-        velX = -velX;
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 4;
     }
 }
 
