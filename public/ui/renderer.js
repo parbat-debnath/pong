@@ -27,7 +27,12 @@ export function draw(state, myID)
     
     state.game.players.forEach((player) => {
         ctx.fillStyle = player.id === myID ? "#0084ff" : "#ff385c";
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
         ctx.fillRect(player.x - player.width / 2, player.y - player.height / 2, player.width, player.height);
+        ctx.shadowBlur = 0;
     });
     
     if(state.game.countDownText)
@@ -37,10 +42,14 @@ export function draw(state, myID)
     }
     
     ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
     ctx.beginPath();
     ctx.arc(state.game.ball.x, state.game.ball.y, ballRadius, 0, Math.PI * 2);
     ctx.fill();
-
+    ctx.shadowBlur = 0;
 }
 
 function printScore(state, myID)
