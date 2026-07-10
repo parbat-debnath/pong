@@ -79,7 +79,9 @@ wss.on("connection", (socket) => {
     socket.send(JSON.stringify({
         type : "canvasDetails",
         canvas : game.canvas,
-        radius : game.ball.radius
+        ball : {
+            radius : game.ball.radius
+        }
     }));
 
 
