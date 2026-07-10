@@ -1,12 +1,26 @@
-*
-{
+*{
     margin: 0px;
     padding: 0px;
 }
+
+@font-face {
+  font-family: 'BebasNeue-Regular';
+  font-style: normal;
+  font-weight: 600;
+  src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+}
+
 canvas {
     padding: 0px;
     margin: 0px;
     border: 1px solid black;
     touch-action: none;
     width: 100%;
+    display: block;
+    background-color: #1e1e1e;
+}
+
+.reversed
+{
+    transform: rotate(180deg);
 }

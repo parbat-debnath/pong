@@ -36,7 +36,6 @@ const server = http.createServer((request, response) => {
             response.end(`ERROR 404 : ${filePath} not found`)
         }
     });
-    
 });
 
 const wss = new WebSocket.Server({server});
@@ -52,11 +51,18 @@ wss.on("connection", (socket) => {
         socket.close();
         return;
     }
+    else if(id === 1)
+    {
+        triggerCountdown();
+        setTimeout(() => {
+            game.isPaused = false;
+        }, 6000);
+    }
 
     const player = {
         id : id,
         x : 150,
-        y : id === 0? 550 : 50,
+        y : id === 0? 487.5 : 112.5,
 
         width : 100,
         height : 20,
@@ -80,7 +86,7 @@ wss.on("connection", (socket) => {
     socket.on("message", (message) => {
         const data = JSON.parse(message);
 
-        if(data.type === "move0")
+        if(data.type === "move0" )
         {
             game.players[0].x = data.x;
         }
@@ -107,11 +113,11 @@ function broadcast(data, wss)
 
 const game = {
     ball : {
-        x : 250,
-        y : 400,
-        velX : 100,
-        velY : 200,
-        radius : 5,
+        x : 150,
+        y : 300,
+        velX : 0,
+        velY : 500,
+        radius : 10,
         maxYVel : 400
     },
 
@@ -121,7 +127,10 @@ const game = {
     {
         width : 300,
         height : 600
-    }
+    },
+
+    isPaused : true,
+    countDownText : ""
 }
 
 let lastTime = Date.now();
@@ -147,16 +156,19 @@ setInterval(() => {
         game : {
             ball : game.ball,
             players : clearPlayers,
-            score : game.score
+            score : game.score,
+            countDownText : game.countDownText
         }
     }), wss);
 
-}, 1000 / 400);
+}, 1000 / 60);
 
 function updateGame(dt)
 {
-    game.ball.x += game.ball.velX * dt;
-    game.ball.y += game.ball.velY * dt;
+    if(!game.isPaused){
+        game.ball.x += game.ball.velX * dt;
+        game.ball.y += game.ball.velY * dt;
+    }
 
     handleCollision();
 }
@@ -171,17 +183,27 @@ function handleCollision()
     {
         game.ball.velX = Math.abs(game.ball.velX);
     }
-    if(game.ball.y + game.ball.radius >= game.canvas.height) // player 1 wins
+    if(game.ball.y - game.ball.radius >= game.canvas.height) // player 1 wins
     {
         game.score[1]++;
         game.ball.x = game.canvas.width / 2;
-        game.ball.y = game.canvas.height / 2
+        game.ball.y = game.canvas.height / 2;
+        game.ball.velX = 0;
+        game.isPaused = true;
+        setTimeout(() => {
+            game.isPaused = false;
+        }, 2000);
     }
-    if(game.ball.y - game.ball.radius <= 0)
+    if(game.ball.y + game.ball.radius <= 0) // player 0 wins
     {
         game.score[0]++;
         game.ball.x = game.canvas.width / 2;
-        game.ball.y = game.canvas.height / 2
+        game.ball.y = game.canvas.height / 2;
+        game.ball.velX = 0;
+        game.isPaused = true;
+        setTimeout(() => {
+            game.isPaused = false;
+        }, 2000);
     }
 
     game.players.forEach((player) => {
@@ -222,5 +244,20 @@ function handleCollision()
                 game.ball.velX = game.ball.maxYVel * (game.ball.x - player.x) / player.width;
             }
         }
-    })
+    });
+}
+
+function triggerCountdown()
+{
+    const sequence = ["READY?", "3", "2", "1", "GO!"]
+
+    sequence.forEach((text, index) => {
+        setTimeout(() => {
+            game.countDownText = text;
+        }, index * 1000);
+    });
+
+    setTimeout(() => {
+        game.countDownText = "";
+    }, sequence.length * 1000);
 }
